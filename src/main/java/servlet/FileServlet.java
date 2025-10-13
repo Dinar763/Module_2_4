@@ -3,9 +3,8 @@ package servlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import entity.Event;
 import entity.File;
-import entity.User;
+import exception.ServiceException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,31 +12,24 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
-import service.EventService;
 import service.FileService;
-import service.UserService;
-import service.impl.EventServiceImpl;
 import service.impl.FileServiceImpl;
-import service.impl.UserServiceImpl;
 import utill.HibernateUtil;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.List;
 
 @MultipartConfig(
         maxFileSize = 1024 * 1024 * 10,
         maxRequestSize = 1024 * 1024 * 50
 )
-@WebServlet("/files")
+@WebServlet("/api/v1/files")
 public class FileServlet extends HttpServlet {
 
     private final FileService fileService = FileServiceImpl.getInstance();
-    private final UserService userService = UserServiceImpl.getInstance();
-    private final EventService eventService = EventServiceImpl.getInstance();
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
@@ -49,6 +41,7 @@ public class FileServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
 
         try {
             String idParam = req.getParameter("id");
@@ -58,14 +51,15 @@ public class FileServlet extends HttpServlet {
                 mapper.writeValue(resp.getWriter(), files);
             } else {
                 Long id = Long.parseLong(idParam);
-                entity.File file = fileService.findById(id);
-                if (file != null) {
-                    mapper.writeValue(resp.getWriter(), file);
-                } else {
-                    resp.setStatus(404);
-                    resp.getWriter().print("{\"error\": \"File not found\"}");
-                }
+                File file = fileService.findById(id);
+                mapper.writeValue(resp.getWriter(), file);
             }
+        } catch (FileNotFoundException e) {
+            resp.setStatus(404);
+            resp.getWriter().print("{\"error\": \"" + e.getMessage() + "\"}");
+        } catch (NumberFormatException e) {
+            resp.setStatus(400);
+            resp.getWriter().print("{\"error\": \"Invalid ID format\"}");
         } catch (Exception e) {
             resp.setStatus(500);
             resp.getWriter().print("{\"error\": \"Server error: " + e.getMessage() + "\"}");
@@ -76,39 +70,35 @@ public class FileServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+
         try {
             var userIdParam = req.getParameter("user_id");
             var filePart = req.getPart("file");
 
             if (userIdParam == null || filePart == null) {
                 resp.setStatus(400);
-                resp.getWriter()
-                    .write("{\"error\": \"user_id and file are required\"}");
+                resp.getWriter().write("{\"error\": \"user_id and file are required\"}");
                 return;
             }
 
             var userId = Long.valueOf(userIdParam);
-            User user = userService.findById(userId);
-            if (user == null) {
-                resp.setStatus(404);
-                resp.getWriter()
-                    .write("{\"error\": \"User not found\"}");
-                return;
-            }
-
             String fileName = getFileName(filePart);
 
             try (InputStream fileContent = filePart.getInputStream()) {
                 File savedFile = fileService.uploadFile(fileName, fileContent, userId);
-                resp.sendRedirect("/files?success=true&id=" + savedFile.getId());
 
-                resp.setContentType("application/json");
+                resp.setStatus(201);
                 resp.getWriter().write(
                         "{\"id\": " + savedFile.getId() +
                                 ", \"name\": \"" + savedFile.getName() +
                                 "\", \"user_id\": " + userId + "}"
                 );
             }
+        } catch (ServiceException  | FileAlreadyExistsException e) {
+            resp.setStatus(400);
+            resp.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
         } catch (Exception e) {
             resp.setStatus(500);
             resp.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
@@ -120,28 +110,23 @@ public class FileServlet extends HttpServlet {
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
 
         try {
             String idParam = req.getParameter("id");
             String nameParam = req.getParameter("name");
 
-            if ((idParam == null || idParam.isBlank()) &&
-                    (nameParam == null || nameParam.isBlank())) {
-                resp.setStatus(400);
-                resp.getWriter().write("{\"error\": \"ID or name parameter is required\"}");
-                return;
-            }
-
-            if (idParam != null && !idParam.isBlank()) {
+            String message;
+            if (idParam != null) {
                 Long id = Long.parseLong(idParam);
                 fileService.deleteById(id);
-                resp.getWriter().write("{\"message\": \"File deleted successfully by ID\"}");
+                message = "File deleted successfully by ID";
+            } else {
+                fileService.deleteByName(nameParam);
+                message = "File deleted successfully by name";
             }
 
-            else if (nameParam != null && !nameParam.isBlank()) {
-                fileService.deleteByName(nameParam);
-                resp.getWriter().write("{\"message\": \"File deleted successfully by name\"}");
-            }
+            resp.getWriter().write("{\"message\": \"" + message + "\"}");
         } catch (NumberFormatException e) {
             resp.setStatus(400);
             resp.getWriter().write("{\"error\": \"Invalid ID format\"}");

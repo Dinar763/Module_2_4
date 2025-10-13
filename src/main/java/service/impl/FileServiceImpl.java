@@ -15,6 +15,7 @@ import service.FileService;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -31,10 +32,14 @@ public class FileServiceImpl implements FileService {
     private final EventRepository eventRepository;
     private String basePath = "E:/fileStore";
 
+    FileServiceImpl(FileRepository fileRepository, UserRepository userRepository, EventRepository eventRepository) {
+        this.fileRepository = fileRepository;
+        this.userRepository = userRepository;
+        this.eventRepository = eventRepository;
+    }
+
     private FileServiceImpl() {
-        this.eventRepository = EventRepositoryImpl.getInstance();
-        this.userRepository = UserRepositoryImpl.getInstance();
-        this.fileRepository = FileRepositoryImpl.getInstance();
+        this(FileRepositoryImpl.getInstance(), UserRepositoryImpl.getInstance(), EventRepositoryImpl.getInstance());
     }
 
     public static synchronized FileServiceImpl getInstance() {
@@ -42,6 +47,10 @@ public class FileServiceImpl implements FileService {
             instance = new FileServiceImpl();
         }
         return instance;
+    }
+
+    static void resetInstance() {
+        instance = null;
     }
 
     @Override
@@ -87,12 +96,35 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
+    public void deleteById(String idParam) {
+        Long id = Long.parseLong(idParam);
+        File file = fileRepository.findById(id);
+        if (file == null) {
+            throw new ServiceException("File not found");
+        }
+        deleteFileWithEvent(file);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        if (id == null) {
+            throw new ServiceException("ID must be not null");
+        }
+        File file = fileRepository.findById(id);
+        if (file == null) {
+            throw new ServiceException("File not found");
+        }
+        deleteFileWithEvent(file);
+    }
+
+
+    @Override
     public void deleteByName(String fileName) {
         File file = fileRepository.findByName(fileName);
         if (file == null) {
             throw new ServiceException("File not found");
         }
-        deleteFileWithEvent(file.getId());
+        deleteFileWithEvent(file);
     }
 
     @Override
@@ -108,18 +140,6 @@ public class FileServiceImpl implements FileService {
     public List<File> findAll() {
         List<File> files = fileRepository.findAll();
         return files != null ? files : Collections.emptyList();
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        if (id == null) {
-            throw new ServiceException("ID must be not null");
-        }
-        File file = fileRepository.findById(id);
-        if (file == null) {
-            throw new ServiceException("File not found");
-        }
-        deleteFileWithEvent(file.getId());
     }
 
     @Override
@@ -159,8 +179,8 @@ public class FileServiceImpl implements FileService {
             rollbackTransaction();
             throw e;
         }
-
     }
+
 
     private String saveFileToDisk(String fileName, InputStream fileContent) throws IOException {
         var fileFullPath = Path.of(basePath, fileName);
@@ -174,10 +194,9 @@ public class FileServiceImpl implements FileService {
         return fileFullPath.toString();
     }
 
-    private void deleteFileWithEvent(Long fileId) {
+    private void deleteFileWithEvent(File file) {
         beginTransaction();
         try {
-            File file = fileRepository.findById(fileId);
             User user = file.getUser();
 
             Event eventEntity = Event.builder()
@@ -195,5 +214,4 @@ public class FileServiceImpl implements FileService {
             throw new ServiceException("Failed to delete file: " + e.getMessage());
         }
     }
-
 }

@@ -30,54 +30,54 @@ public class DocsServlet extends HttpServlet {
                 
                 <h2>Users Endpoints</h2>
                 <div class="endpoint">
-                    <span class="method">GET</span> <span class="url">/users</span><br>
+                    <span class="method">GET</span> <span class="url">/api/v1/</span><br>
                     Get all users
                 </div>
                 <div class="endpoint">
-                    <span class="method">GET</span> <span class="url">/users?id=1</span><br>
+                    <span class="method">GET</span> <span class="url">/api/v1/users?id=1</span><br>
                     Get user by ID
                 </div>
                 <div class="endpoint">
-                    <span class="method">POST</span> <span class="url">/users</span><br>
+                    <span class="method">POST</span> <span class="url">/api/v1/users</span><br>
                     Create user<br>
                     <strong>Body:</strong> {"name": "username"}
                 </div>
                 </div>
                 <div class="endpoint">
-                    <span class="method">DELETE</span> <span class="url">/users?id=1</span><br>
+                    <span class="method">DELETE</span> <span class="url">/api/v1/users?id=1</span><br>
                     Delete user by ID<br>
                 </div>
                 
                 <h2>Files Endpoints</h2>
                 <div class="endpoint">
-                    <span class="method">POST</span> <span class="url">/files</span><br>
+                    <span class="method">POST</span> <span class="url">/api/v1/files</span><br>
                     Upload file<br>
                     <strong>Form data:</strong> file=[file], user_id=1
                 </div>
                 <div class="endpoint">
-                    <span class="method">GET</span> <span class="url">/files</span><br>
+                    <span class="method">GET</span> <span class="url">/api/v1/files</span><br>
                     Get all files<br>
                 </div>
                 <div class="endpoint">
-                    <span class="method">GET</span> <span class="url">/files?id=1</span><br>
+                    <span class="method">GET</span> <span class="url">/api/v1/files?id=1</span><br>
                     Get file by ID<br>
                 </div>
                 <div class="endpoint">
-                    <span class="method">DELETE</span> <span class="url">/files?id=1</span><br>
+                    <span class="method">DELETE</span> <span class="url">/api/v1/files?id=1</span><br>
                     Delete file by ID<br>
                 </div>
                 <div class="endpoint">
-                    <span class="method">DELETE</span> <span class="url">/files?name=123.txt</span><br>
+                    <span class="method">DELETE</span> <span class="url">/api/v1/files?name=123.txt</span><br>
                     Delete file by name<br>
                 </div>
                 
                 <h2>Events Endpoints</h2>
                 <div class="endpoint">
-                    <span class="method">GET</span> <span class="url">/events</span><br>
+                    <span class="method">GET</span> <span class="url">/api/v1/events</span><br>
                     Get all events
                 </div>
                 <div class="endpoint">
-                    <span class="method">GET</span> <span class="url">/events?id=1</span><br>
+                    <span class="method">GET</span> <span class="url">/api/v1/events?id=1</span><br>
                     Get event by ID
                 </div>
                

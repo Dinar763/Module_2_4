@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@WebServlet("/users")
+@WebServlet("/api/v1/users")
 public class UserServlet extends HttpServlet {
 
     private final UserService userService = UserServiceImpl.getInstance();
@@ -39,6 +39,7 @@ public class UserServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
 
         try {
             String idParam = req.getParameter("id");
@@ -68,6 +69,7 @@ public class UserServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
 
         try {
             JsonNode jsonNode = mapper.readTree(req.getReader());
@@ -98,6 +100,7 @@ public class UserServlet extends HttpServlet {
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
 
         try {
             String idParam = req.getParameter("id");

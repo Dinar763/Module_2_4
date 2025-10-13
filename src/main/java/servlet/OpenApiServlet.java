@@ -23,7 +23,7 @@ public class OpenApiServlet extends HttpServlet {
             "description": "API for managing users, files and events"
         },
         "paths": {
-            "/users": {
+            "/api/v1/users": {
                 "get": {
                     "summary": "Get all users",
                     "description": "Returns list of all users or specific user by ID",
@@ -119,7 +119,7 @@ public class OpenApiServlet extends HttpServlet {
                     }
                 }
             },
-            "/files": {
+            "/api/v1/files": {
                 "get": {
                     "summary": "Get files",
                     "description": "Get all files or specific file by ID",
@@ -229,7 +229,7 @@ public class OpenApiServlet extends HttpServlet {
                     }
                 }
             },
-            "/events": {
+            "/api/v1/events": {
                 "get": {
                     "summary": "Get events",
                     "description": "Get all events or specific event by ID",

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import entity.Event;
-import entity.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -17,7 +16,7 @@ import utill.HibernateUtil;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet("/events")
+@WebServlet("/api/v1/events")
 public class EventServlet extends HttpServlet {
 
     private final EventService eventService = EventServiceImpl.getInstance();
@@ -32,6 +31,7 @@ public class EventServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
 
         try {
             String userIdParam = req.getParameter("id");

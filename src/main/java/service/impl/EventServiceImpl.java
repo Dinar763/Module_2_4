@@ -10,7 +10,6 @@ import repository.FileRepository;
 import repository.UserRepository;
 import repository.impl.EventRepositoryImpl;
 import repository.impl.FileRepositoryImpl;
-import repository.impl.UserRepositoryImpl;
 import service.EventService;
 
 import java.util.Collections;
@@ -25,10 +24,9 @@ public class EventServiceImpl implements EventService {
     FileRepository fileRepository;
     UserRepository userRepository;
 
-    private EventServiceImpl() {
+    EventServiceImpl() {
         this.eventRepository = EventRepositoryImpl.getInstance();
         this.fileRepository = FileRepositoryImpl.getInstance();
-//        this.userRepository = UserRepositoryImpl.getInstance();
     }
 
     public static synchronized EventServiceImpl getInstance() {

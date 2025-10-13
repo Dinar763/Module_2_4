@@ -12,6 +12,7 @@ public interface FileService extends GenericService <File>  {
     File findByName(String fileName);
     File findByFilePath(String filePath);
     boolean existByName(String fileName);
-    void deleteByName(String fileName);
+    void deleteById(String idParam);
     File uploadFile(String filePath, InputStream fileContent, Long userId) throws IOException;
+    void deleteByName(String fileName);
 }

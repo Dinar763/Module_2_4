@@ -16,7 +16,7 @@
         <hibernate-core.version>6.6.26.Final</hibernate-core.version>
         <hypersistence-utils-hibernate-63.version>3.7.0</hypersistence-utils-hibernate-63.version>
         <junit-bom.version>5.10.0</junit-bom.version>
-        <junit-jupiter-api.version>5.11.4</junit-jupiter-api.version>
+        <junit-jupiter-api.version>5.13.4</junit-jupiter-api.version>
         <flyway-core.version>11.11.2</flyway-core.version>
         <flyway-mysql.version>11.11.2</flyway-mysql.version>
         <mockito-core.version>5.18.0</mockito-core.version>
@@ -81,7 +81,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.11.4</version>
+            <version>${junit-jupiter-api.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
